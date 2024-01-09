@@ -41,21 +41,33 @@ app.get('/search/:keyword', async (req, res) => {
   try {
     // Call the amazon-product-api library
     console.log(keyword)
-    let products = await amazonScraper.products({ keyword: keyword, number: 50 });
-
+    let products = await amazonScraper.products({ keyword: keyword, number: 3});
+    console.log(products)
     products = products['result']
     const productResponse = [];
 
     // Loop over the list of objects and extract the 'title' property
     for (const obj of products) {
-        if (obj.title) {
+      try {
+        let productDetail =  await amazonScraper.asin({ asin: obj.asin });
+        console.log(productDetail)
+        if (productDetail.result[0].title) {
         productResponse.push({
-            'title': obj.title,
-            'price': obj.price,
-            'asin': obj.asin,
-            'url': obj.url
+            'title': productDetail.result[0].title,
+            'description': productDetail.result[0].description,
+            'feature_bullets': productDetail.result[0].feature_bullets,
+            'main_image': productDetail.result[0].main_image,
+            'price':  productDetail.result[0].price,
         })
-    }
+
+        if (productResponse.length > 3) {
+          break;
+      }
+
+        } 
+      }   catch (error) {
+          console.log(error)
+        }
     }
     // Return the results from your API
     res.json(productResponse);
