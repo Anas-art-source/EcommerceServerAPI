@@ -50,7 +50,6 @@ app.get('/search/:keyword', async (req, res) => {
     for (const obj of products) {
       try {
         let productDetail =  await amazonScraper.asin({ asin: obj.asin });
-        console.log(productDetail)
         if (productDetail.result[0].title) {
         productResponse.push({
             'title': productDetail.result[0].title,
